@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: 
+  name: podinfo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec: 
+  project: default
+
+  source:
+    repoURL: https://stefanprodan.github.io/podinfo
+    chart: podinfo
+    targetRevision: 6.15.0
+    helm:
+      releaseName: podinfo
+      valuesObject: 
+        replicaCount: 2
+        ui:
+          message: "hello from ArgoCD"
+        sevice:          
+          type: ClusterIP
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: podinfo
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOption:
+      - CreateNamespace=true
